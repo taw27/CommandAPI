@@ -5,7 +5,7 @@ namespace CommandAPI.Models
 {
     public class CommandContext : DbContext
     {
-        public CommandContext(DbContextOptions<CommandContext> options)
+        public CommandContext(DbContextOptions<CommandContext> options) : base(options)
         {
 
         }
