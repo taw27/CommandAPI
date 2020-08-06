@@ -150,5 +150,193 @@ namespace CommandAPI.Tests
 
             Assert.Equal(commandId, result.Value.Id);
         }
+
+
+        [Fact]
+        public void PostCommandItemObjectCountIncrementWhenValidObject()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+            var originalCount = dbContext.CommandItems.Count();
+            var result = controller.PostCommandItem(command);
+
+            Assert.Equal(originalCount + 1, dbContext.CommandItems.Count());
+        }
+        [Fact]
+        public void PostCommandItemReturns201CreatedWhenValidObject()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+
+            var result = controller.PostCommandItem(command);
+
+            Assert.IsType<CreatedAtActionResult>(result.Result);
+        }
+
+        [Fact]
+        public void PutCommandItemAttributeUpdatedWhenValidObject()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+            dbContext.CommandItems.Add(command);
+            dbContext.SaveChanges();
+
+            var commandId = command.Id;
+
+            command.HowTo = "Updated";
+
+            controller.PutCommandItem(commandId, command);
+            var result = dbContext.CommandItems.Find(commandId);
+
+            Assert.Equal(command.HowTo, result.HowTo);
+        }
+
+        [Fact]
+        public void PutCommandItemReturns204WhenValidObject()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+            dbContext.CommandItems.Add(command);
+            dbContext.SaveChanges();
+
+            var commandId = command.Id;
+
+            command.HowTo = "Updated";
+
+            var result = controller.PutCommandItem(commandId, command);
+
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public void PutCommandItemReturns400WhenInvalidObject()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+            dbContext.CommandItems.Add(command);
+            dbContext.SaveChanges();
+
+            var commandId = command.Id + 1;
+
+            command.HowTo = "Updated";
+
+            var result = controller.PutCommandItem(commandId, command);
+
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public void PutCommandItemAttributeUnchangedWhenInvalidObject()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+            dbContext.CommandItems.Add(command);
+            dbContext.SaveChanges();
+            var command2 = new Command
+            {
+                Id = command.Id,
+                HowTo = "UPDATED",
+                Platform = "UPDATED",
+                CommandLine = "UPDATED"
+            };
+
+            controller.PutCommandItem(command.Id + 1, command2);
+
+            var result = dbContext.CommandItems.Find(command.Id);
+
+            Assert.Equal(command.HowTo, result.HowTo);
+        }
+
+        [Fact]
+        public void DeleteCommandItemObjectsDecrementWhenValidObjectID()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+            dbContext.CommandItems.Add(command);
+            dbContext.SaveChanges();
+
+            var commandId = command.Id;
+            var oldCount = dbContext.CommandItems.Count();
+
+            controller.DeleteCommandItem(commandId);
+
+            Assert.Equal(oldCount - 1, dbContext.CommandItems.Count());
+        }
+
+        [Fact]
+        public void DeleteCommandItemReturns200OKWHenValidObjectID()
+        {
+
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            };
+            dbContext.CommandItems.Add(command);
+            dbContext.SaveChanges();
+
+            var commandId = command.Id;
+
+            var result = controller.DeleteCommandItem(commandId);
+
+            Assert.Null(result.Result);
+
+        }
+
+
+        [Fact]
+        public void DeleteCommandItemReturns404NotFoundWhenInvalidObjectID()
+        {
+            var result = controller.DeleteCommandItem(-1);
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public void DeleteCommandItemObjectCountNotDecrementedWhenInvalidObjectID()
+        {
+            var command = new Command
+            {
+                HowTo = "Do Somethting",
+                Platform = "Some Platform",
+                CommandLine = "Some Command"
+            }; dbContext.CommandItems.Add(command); dbContext.SaveChanges();
+            var commandId = command.Id;
+            var objCount = dbContext.CommandItems.Count();
+
+            var result = controller.DeleteCommandItem(commandId + 1);
+
+            Assert.Equal(objCount, dbContext.CommandItems.Count());
+        }
+
+
     }
 }
